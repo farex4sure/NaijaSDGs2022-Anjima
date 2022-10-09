@@ -1,3 +1,65 @@
+<?php
+session_start();
+include "config.php";
+$err="";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+$detail2 = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'";
+            $result = $conn->query($detail2);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $cpins= $row["tpin"];
+                }
+            }
+if($cpins != "0"){
+    header("location:dashboard.php");    
+}else{
+if(isset($_POST['submit'])){
+    $pin1=$_POST['pin1'];
+    $pin2=$_POST['pin2'];
+    $pin3=$_POST['pin3'];
+    $pin4=$_POST['pin4'];
+
+    $cpin1=$_POST['cpin1'];
+    $cpin2=$_POST['cpin2'];
+    $cpin3=$_POST['cpin3'];
+    $cpin4=$_POST['cpin4'];
+
+    $pin=$pin1.$pin2.$pin3.$pin4;
+    $cpin=$cpin1.$cpin2.$cpin3.$cpin4;
+    if($pin !== $cpin){
+        $err='
+        <div role="alert">
+        <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+            Error
+        </div>
+        <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+            <p>Pins do not match !!!.</p>
+        </div>
+        </div>
+        ';
+    }else{
+        $update = "UPDATE vendors SET tpin = '$pin' WHERE phone='".$_SESSION['loggedin_vendor']."'";
+        $updated = mysqli_query($conn,$update);
+        if($updated == true){
+            header("location:pinset.php");
+        }else{
+            $err='
+        <div role="alert">
+        <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+            Error
+        </div>
+        <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+            <p>not changed !!!.</p>
+        </div>
+        </div>
+        ';
+        }
+    }
+}
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

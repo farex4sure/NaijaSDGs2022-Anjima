@@ -1,3 +1,37 @@
+<?php
+session_start();
+include "config.php";
+if(!isset($_SESSION['fullname']) || !isset($_SESSION['category']) || !isset($_SESSION['password'])){
+    header("location:vendor_signin.php");
+}
+$fname=$_SESSION['fullname'];
+$phone=$_SESSION['phone'];
+$email=$_SESSION['email'];
+$category=$_SESSION['category'];
+$pwd=$_SESSION['password'];
+if(isset($_POST['submit'])){
+
+    $date=time();
+
+    $file1_name = $_FILES['image']['name'];
+    $file1_tmp =$_FILES['image']['tmp_name'];
+
+    if($file1_name != ''){
+        move_uploaded_file($file1_tmp,"vendor/".$file1_name);
+    }
+    $vendor="INSERT INTO vendors (id,fullname,phone,email,category,pic,pwd,st,date)VALUES('','$fname','$phone','$email','$category','$file1_name','$pwd','0','$date')";
+    $vendors=mysqli_query($conn,$vendor);
+
+    $wallet="INSERT INTO wallet (id,owner,balance,date)VALUES('','$phone','0','$date')";
+    $wallets=mysqli_query($conn,$wallet);
+    if($vendors == true && $wallets == true){
+        $_SESSION['loggedin_vendor']=$phone;
+        header("location:dashboard.php");
+    }else{
+        echo "error";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

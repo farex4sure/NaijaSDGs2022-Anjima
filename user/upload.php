@@ -1,3 +1,95 @@
+<?php
+session_start();
+include "config.php";
+if(!isset($_SESSION['phone']) || !isset($_SESSION['otpVerified']) || !isset($_SESSION['name'])  || !isset($_SESSION['password'])){
+header("location: signup.php");
+}
+else{
+
+
+
+
+
+if($_SERVER['REQUEST_METHOD']==="POST"){
+
+$fullname=$_SESSION['name'];
+$phone=$_SESSION['phone'];
+$email=$_SESSION['email'];
+$password=$_SESSION['password'];
+$pwd=md5($password);
+$dt=time();
+
+
+$msg = ""; 
+
+
+
+    $filename = uniqid.$_FILES["picture"]["name"];
+
+    $tempname = $_FILES["picture"]["tmp_name"];  
+
+        $folder = "images/".$filename;   
+
+   
+        // query to insert the submitted data
+
+        $sql = "INSERT INTO users (fullname, phone, email, pic, pwd, tier, st, date) VALUES ('$fullname', '$phone', '$email', '$filename', '$pwd', '2', '0', '$dt')";
+$sql2 = "INSERT INTO a_wallet (owner, balance, date) VALUES ('$phone', '10000.00','$dt')";
+$sql3 = "INSERT INTO wallet (owner, balance, date) VALUES ('$phone', '0.00','$dt')";
+
+
+        // function to execute above query
+
+        $done=mysqli_query($conn, $sql);       
+$done2=mysqli_query($conn, $sql2); 
+$done3=mysqli_query($conn, $sql3); 
+
+        // Add the image to the "image" folder"
+
+        if (move_uploaded_file($tempname, $folder) && $done && $done2 && $done3) {
+$_SESSION['loggedin_user']=$_SESSION['phone'];
+
+unset($fullname);
+unset($email);
+unset($phone);
+unset($otpVerified);
+unset($password);
+
+
+
+         ?>
+<script>
+window.location.href='dashboard.php';
+</script>
+
+         <?php
+
+        }else{
+
+            $msg = "Something went wrong, please try again!";
+
+    }
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+}
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

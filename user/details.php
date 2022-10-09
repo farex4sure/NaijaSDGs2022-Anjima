@@ -1,3 +1,12 @@
+<?php
+session_start();
+ob_start();
+
+if (!isset($_SESSION['otpVerified']) OR $_SESSION['otpVerified']!= "true") {
+header("location:otp.php");
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
