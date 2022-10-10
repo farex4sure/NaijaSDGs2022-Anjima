@@ -1,3 +1,53 @@
+<?php
+include "config.php";
+session_start();
+$err="";
+if(isset($_POST['submit'])){
+$phone=$_POST['phone'];
+$email=$_POST['email'];
+
+$phone=ltrim($phone, "+2340");
+$phone="+234".$phone;
+
+if($phone == ''){
+    $err='
+    <div role="alert">
+  <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+    Error
+  </div>
+  <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+    <p>Please your phone number is required</p>
+  </div>
+</div>
+    ';
+}else{
+$query="SELECT * FROM vendors WHERE phone='$phone'";
+  $result=mysqli_query($conn,$query) or die(mysqli_error($conn));
+  $count=mysqli_num_rows($result);
+
+$querys="SELECT * FROM users WHERE phone='$phone'";
+  $results=mysqli_query($conn,$querys) or die(mysqli_error($conn));
+  $counts=mysqli_num_rows($results);
+  
+  if($count > 0 || $counts > 0 ){
+     $err='
+    <div role="alert">
+  <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+    Error
+  </div>
+  <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+    <p>This phone number or email has already been used </p>
+  </div>
+</div>
+    '; 
+  }else{
+$_SESSION['phone']=$phone;
+$_SESSION['email']=$email;
+header("location:otp.php");
+}
+}
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

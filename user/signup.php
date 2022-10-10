@@ -1,3 +1,45 @@
+<?php
+session_start();
+if ($_SERVER['REQUEST_METHOD']==="POST") {
+   // check if phone number is input
+
+//check if phone number already exists
+
+include "config.php";
+$phone=$_POST['phone'];
+$email=$_POST['email'];
+
+$phone=ltrim($phone, "+2340");
+$phone="+234".$phone;
+$checknum=mysqli_query($conn, "SELECT * FROM users WHERE phone='$phone'");
+// vendor check
+$checknums=mysqli_query($conn, "SELECT * FROM vendors WHERE phone='$phone'");
+
+if(mysqli_num_rows($checknum)> 0){
+$msg ="<span class='text-red-500'>You already have an Anjima account</span>";
+
+}elseif(mysqli_num_rows($checknums)> 0){
+$msg ="<span class='text-red-500'>You already have an Anjima account as vendor</span>";
+}
+
+else{
+     
+    $_SESSION['phone']=$_POST['phone'];
+    $_SESSION['email']=$_POST['email'];
+
+header("location:otp.php");
+?>
+<script>
+window.location.href="otp.php";
+</script>
+<?php
+    
+
+
+}
+
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

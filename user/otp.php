@@ -1,3 +1,45 @@
+<?php
+session_start();
+ob_start();
+
+// verify otp
+
+if($_SERVER['REQUEST_METHOD']==="POST"){
+
+   $otp1=$_POST['otp1'];
+   $otp2=$_POST['otp2'];
+   $otp3=$_POST['otp3'];
+   $otp4=$_POST['otp4'];
+   $otp5=$_POST['otp5'];
+   $otp6=$_POST['otp6'];
+
+   $otp = $otp1.$otp2.$otp3.$otp4.$otp5.$otp6;
+   
+ if($otp=="123456") {
+   $_SESSION['otpVerified']="true";
+
+$phone=$_SESSION['phone'];
+$phone=ltrim($phone, "+2340");
+$phone="+234".$phone;
+$_SESSION["phone"]=$phone;
+
+   
+    header("location:details.php");  
+
+
+
+ }
+ else {
+    $msg="<span class='text-red-500'>Invalid OTP!</span>";
+ }
+
+
+
+
+
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

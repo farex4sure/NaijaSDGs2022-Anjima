@@ -1,4 +1,38 @@
+<?php
+include "config.php";
+session_start();
+$err="";
+if(!isset($_SESSION['phone'])){
+    header("location:vendor_signin.php");
+}
+if(isset($_POST['submit'])){
+$otp1=$_POST['otp1'];
+$otp2=$_POST['otp2'];
+$otp3=$_POST['otp3'];
+$otp4=$_POST['otp4'];
+$otp5=$_POST['otp5'];
+$otp6=$_POST['otp6'];
 
+$otp=$otp1.$otp2.$otp3.$otp4.$otp5.$otp6;
+if($otp=="123456") {
+   
+$_SESSION['otpVerified']="true";
+header("location:details.php");
+}else{
+    $err='
+    <div role="alert">
+  <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+    Error
+  </div>
+  <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+    <p>Invalid otp.</p>
+  </div>
+</div>
+    ';
+}
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
