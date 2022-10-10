@@ -1,3 +1,96 @@
+<?php
+session_start(); 
+ $err="";
+
+if(isset($_SESSION["loggedin_user"])){
+header("Location:dashboard.php");
+                ?>
+                <script type="text/javascript">
+                  window.location.href="dashboard.php";
+                </script>
+                <?php
+
+}
+include "config.php";
+
+if ($_SERVER['REQUEST_METHOD']==="POST" && isset($_POST['phone']) && isset($_POST['pwd'])) {
+
+    function validate($data){
+
+       $data = trim($data);
+
+       $data = stripslashes($data);
+
+       $data = htmlspecialchars($data);
+
+       return $data;
+
+    }
+
+    $phone = $_POST['phone'];
+
+$phone=ltrim($phone, "+2340");
+$phone="+234".$phone;
+    $pwd = validate(md5($_POST['pwd']));
+
+    if (empty($phone)) {
+
+      $err= "Phone number or email address is required";
+
+      
+
+    }else if(empty($pwd)){
+
+        $err= "Password is required";
+
+      
+
+    }else{
+
+        $sql = "SELECT * FROM users WHERE phone='$phone'  AND pwd='$pwd' OR email='$phone' AND pwd='$pwd'";
+
+        $result = mysqli_query($conn, $sql);
+
+        if (mysqli_num_rows($result) === 1) {
+
+            $row = mysqli_fetch_assoc($result);
+
+          
+              
+
+                $_SESSION['loggedin_user'] = $row['phone'];
+               
+
+                $err=" <script>
+             
+                   window.location.href = 'dashboard.php';
+              
+               </script>
+         ";
+
+                
+                
+
+             
+
+           
+
+        }else{
+
+            $err="<span class='text-sm text-red-500  dark:bg-red-200 dark:text-red-800' role='alert'>
+         Incorrect Login Credentials
+          </span>";
+
+       
+
+        }
+
+    }
+
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

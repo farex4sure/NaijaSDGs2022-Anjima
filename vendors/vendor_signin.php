@@ -1,3 +1,51 @@
+<?php
+include "config.php";
+session_start();
+$err="";
+if(isset($_SESSION["loggedin_vendor"])){
+header("Location:dashboard.php");
+                ?>
+                <script type="text/javascript">
+                  window.location.href="dashboard.php";
+                </script>
+                <?php
+
+}
+if(isset($_POST['submit'])){
+    $phone=$_POST['phone'];
+    $pwd=$_POST['password'];
+
+   $phone=$phone;
+    $phone=ltrim($phone, "+2340");
+    $phone="+234".$phone;
+
+if (empty($phone)) {
+    $err="<div class='p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800' role='alert'>
+                <span class='font-medium'>Error</span> Phone number or email address is required
+              </div>";
+    }else if(empty($pwd)){
+        $err="<div class='p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800' role='alert'>
+                <span class='font-medium'>Error</span> Password is required
+              </div>";
+    }else{
+  
+    $sql = "SELECT * FROM vendors WHERE phone ='$phone' AND pwd='$pwd' or email='$phone' AND pwd='$pwd'";
+    
+    $result = mysqli_query($conn, $sql);
+        if (mysqli_num_rows($result) === 1) {
+            $row = mysqli_fetch_assoc($result);
+
+                $_SESSION['loggedin_vendor'] = $row['phone'];
+                header("location:dashboard.php");
+        }else{
+                $err="<div class='p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800' role='alert'>
+                <span class='font-medium'>Error</span> Incorrect Login Credentials
+              </div>";
+        
+    }
+}
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

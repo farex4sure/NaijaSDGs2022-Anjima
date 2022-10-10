@@ -1,3 +1,113 @@
+<?php
+session_start();
+include "config.php";
+$err="";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+$details = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'";
+            $result = $conn->query($details);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $name = $row["fullname"];
+                    $pic = $row["pic"];
+                }
+            }
+$balance = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_vendor']."'";
+            $result = $conn->query($balance);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $balance = $row["balance"];
+                }
+            }
+
+$r_balance = "SELECT * FROM wallet WHERE owner='".$_SESSION['r_phone']."'";
+            $result = $conn->query($r_balance);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $r_balance = $row["balance"];
+                }
+            }
+
+$ru_details = "SELECT * FROM users WHERE phone='".$_SESSION['r_phone']."'";
+            $result = $conn->query($ru_details);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $r_name = $row["fullname"];
+                    $r_pic = $row["pic"];
+                }
+            }
+$rv_details = "SELECT * FROM vendors WHERE phone='".$_SESSION['r_phone']."'";
+            $result = $conn->query($rv_details);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $r_name = $row["fullname"];
+                    $v_pic = $row["pic"];
+                }
+            }
+if(isset($_POST['submit'])){
+    $pin1=$_POST['pin1'];
+    $pin2=$_POST['pin2'];
+    $pin3=$_POST['pin3'];
+    $pin4=$_POST['pin4'];
+    $tpin=$pin1.$pin2.$pin3.$pin4;
+    
+    $newbal=$balance-$_SESSION['amount'];
+
+    $detail2 = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'";
+            $result = $conn->query($detail2);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $cpin= $row["tpin"];
+                }
+            }
+    if($tpin != $cpin){
+    $err='
+    <div role="alert">
+    <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+        Error
+    </div>
+    <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+        <p>Incorrect pin.</p>
+    </div>
+    </div>
+    ';
+    }else{
+    $update = "UPDATE wallet SET balance = '$newbal' WHERE owner='".$_SESSION['loggedin_vendor']."'";
+    $updated = mysqli_query($conn,$update);
+
+    $check = "SELECT * FROM users WHERE phone='".$_SESSION['r_phone']."'";
+    $checked=mysqli_query($conn,$check);
+    if($checked == true){
+        $rnewbal=$r_balance+$_SESSION['amount'];
+        $updates = "UPDATE wallet SET balance = '$rnewbal' WHERE owner='".$_SESSION['r_phone']."'";
+        $updateds = mysqli_query($conn,$updates);
+    }else{
+        $rnewbal=$r_balance+$_SESSION['amount'];
+        $updates = "UPDATE wallet SET balance = '$rnewbal' WHERE owner='".$_SESSION['r_phone']."'";
+        $updateds = mysqli_query($conn,$updates);
+}
+$refid="T".date("Y_M_D_His_").rand(01111,99999);
+$date=time();
+$insert="INSERT INTO transfer (id,tto,tfrom,tdesc,tamt,ref_id,date)VALUES('','".$_SESSION['r_phone']."','".$_SESSION['loggedin_vendor']."','','".$_SESSION['amount']."','$refid','$date')";
+$inserted = mysqli_query($conn,$insert);
+if($inserted == true){
+header("location:confirm.php");
+}else{
+    echo'
+    <div role="alert">
+        <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+            Danger
+        </div>
+        <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+            <p>Something not ideal might be happening.</p>
+        </div>
+    </div>
+    ';
+}
+}
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

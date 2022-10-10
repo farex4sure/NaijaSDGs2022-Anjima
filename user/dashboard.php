@@ -1,3 +1,70 @@
+<?php
+session_start();
+include "config.php";
+if(!isset($_SESSION['loggedin_user'])){
+    header("location:signin.php");
+}
+$details = "SELECT * FROM users WHERE phone='".$_SESSION['loggedin_user']."'";
+            $result = $conn->query($details);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $id = $row['id'];
+                    $name = $row["fullname"];
+                    $email = $row["email"];
+                    $tpin = $row["tpin"];
+                    $pic = $row["pic"];
+                }
+            }
+if($tpin == "0"){
+    header("location:setpin.php");
+}
+
+$wallet = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_user']."'";
+            $result = $conn->query($wallet);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $id = $row['id'];
+                    $bal = $row["balance"];
+                }
+            }
+
+$awallet = "SELECT * FROM a_wallet WHERE owner='".$_SESSION['loggedin_user']."'";
+            $result = $conn->query($awallet);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $id = $row['id'];
+                    $a_bal = $row["balance"];
+                }
+            }
+if(isset($_POST['submit'])){
+    $trans_id=$_POST['trans_id'];
+    $amt=$_POST['amount'];
+    $o_name=$_POST['name'];
+    $_SESSION['trans_id']=$trans_id;
+    $_SESSION['amt']=$amt;
+    $_SESSION['name']=$o_name;
+    header("header:receipt.php");
+    ?>
+    <script>
+    window.location.href = "receipt.php";
+    </script>
+    <?php
+}
+if(isset($_POST['submit2'])){
+    $trans_id=$_POST['trans_id'];
+    $amt=$_POST['amount'];
+    $o_name=$_POST['name'];
+    $_SESSION['trans_id']=$trans_id;
+    $_SESSION['amt']=$amt;
+    $_SESSION['name']=$o_name;
+    header("header:receipt.php");
+    ?>
+    <script>
+    window.location.href = "receipt2.php";
+    </script>
+    <?php
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
