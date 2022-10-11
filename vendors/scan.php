@@ -1,3 +1,152 @@
+<?php
+session_start();
+ob_start();
+include "config.php";
+$err="";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+$qrsender=base64_decode($_GET['u']);
+$_SESSION['qrsender']=$qrsender;
+$mybalance = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_vendor']."'";
+            $result = $conn->query($mybalance);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $bal = $row["balance"];
+                }
+            }
+
+$mbalance = "SELECT * FROM wallet WHERE owner='$qrsender'";
+            $result = $conn->query($mbalance);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $mbalance = $row["balance"];
+                }
+            }
+
+$lbalance = "SELECT * FROM a_wallet WHERE owner='$qrsender'";
+            $result = $conn->query($lbalance);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $lbalance = $row["balance"];
+                }
+            }
+
+$details = "SELECT * FROM users WHERE phone='$qrsender'";
+            $results = $conn->query($details);
+            if ($results->num_rows > 0) {
+                while($row = $results->fetch_assoc()) {
+                    $tpin = $row["tpin"];
+                    $pic = $row["pic"];
+                    $name = $row["fullname"];
+                }
+            }
+if(isset($_POST['submit'])){
+    $wallet=$_POST['wallet'];
+    $amount=$_POST['amount'];
+    $desc=$_POST['desc'];
+    
+    $pin1=$_POST['pin1'];
+    $pin2=$_POST['pin2'];
+    $pin3=$_POST['pin3'];
+    $pin4=$_POST['pin4'];
+    $pin=$pin1.$pin2.$pin3.$pin4;
+    if($wallet == "mw"){
+        $balance=$mbalance;
+    }
+    else{
+        $balance=$lbalance;
+    }
+    if($amount > $balance){
+        $err='
+        <div role="alert">
+            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+                Error
+            </div>
+            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                <p>Insufficent Fund.</p>
+            </div>
+        </div>
+        ';
+    }else{
+        if($pin !== $tpin){
+        $err='
+        <div role="alert">
+            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+                Error
+            </div>
+            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                <p>Incorrect Pin.</p>
+            </div>
+        </div>
+        ';
+        }else{
+            if($wallet == "mw"){
+                $newbal=$mbalance-$amount;
+                $mybal=$bal+$amount;
+                $update = "UPDATE wallet SET balance = '$newbal' WHERE owner='$qrsender'";
+                $updated = mysqli_query($conn,$update);
+                $refid="T".date("Y_M_D_His_").rand(01111,99999);
+                $date=time();
+                $insert="INSERT INTO transfer (id,tto,tfrom,tdesc,tamt,ref_id,date)VALUES('','".$_SESSION['loggedin_vendor']."','$qrsender','$desc','$amount','$refid','$date')";
+                $inserted = mysqli_query($conn,$insert);
+
+                $updates = "UPDATE wallet SET balance = '$mybal' WHERE owner='".$_SESSION['loggedin_vendor']."'";
+                $updateds = mysqli_query($conn,$updates);
+
+                if($inserted === true && $updateds === true && $loan === true){
+                    $qrsender=$_SESSION['qrsender'];
+                    $amount=$_SESSION['amount2'];
+                    header("location:received.php");
+                }else{
+                    $err='
+                    <div role="alert">
+                        <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+                            Error
+                        </div>
+                        <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                            <p>Not received.</p>
+                        </div>
+                    </div>
+                    ';
+                }
+            }else{
+                $newbal=$lbalance-$amount;
+                $mybal=$bal+$amount;
+                $update = "UPDATE a_wallet SET balance = '$newbal' WHERE owner='$qrsender'";
+                $updated = mysqli_query($conn,$update);
+                $refid="T".date("Y_M_D_His_").rand(01111,99999);
+                $date=time();
+                $insert="INSERT INTO transfer (id,tto,tfrom,tdesc,tamt,ref_id,date)VALUES('','".$_SESSION['loggedin_vendor']."','$qrsender','$desc','$amount','$refid','$date')";
+                $inserted = mysqli_query($conn,$insert);
+
+                $updates = "UPDATE wallet SET balance = '$mybal' WHERE owner='".$_SESSION['loggedin_vendor']."'";
+                $updateds = mysqli_query($conn,$updates);
+                
+                $loanacc= "INSERT INTO loans (id,phone,amt_used,amt_remaining,amt_paid,dt)VALUES('','$qrsender','$amount','','','$date')";
+                $loan=mysqli_query($conn,$loanacc);
+
+                if($inserted === true && $updateds === true){
+                    $qrsender=$_SESSION['qrsender'];
+                    $amount=$_SESSION['amount2'];
+                    header("location:received.php");
+                }else{
+                    $err='
+                    <div role="alert">
+                        <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+                            Error
+                        </div>
+                        <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                            <p>Not received.</p>
+                        </div>
+                    </div>
+                    ';
+                }
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

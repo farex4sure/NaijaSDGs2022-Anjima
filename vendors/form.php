@@ -1,3 +1,61 @@
+<?php
+include "config.php";
+session_start();
+ob_start();
+$err="";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+$qrsender=base64_decode($_GET['u']);
+
+$details = "SELECT * FROM users WHERE phone='$qrsender'";
+            $results = $conn->query($details);
+            if ($results->num_rows > 0) {
+                while($row = $results->fetch_assoc()) {
+                    $tpin = $row["tpin"];
+                }
+            }
+            
+if(isset($_POST['submit'])){
+    $amt=$_POST['amount'];
+    $ddate=$_POST['d_date'];
+    $desc=$_POST['desc'];
+    $date=time();
+
+    $pin1=$_POST['pin1'];
+    $pin2=$_POST['pin2'];
+    $pin3=$_POST['pin3'];
+    $pin4=$_POST['pin4'];
+
+    $pin=$pin1.$pin2.$pin3.$pin4;
+
+    if($pin !== $tpin){
+        $err='
+        <div class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-emerald-500">
+            <span class="text-xl inline-block mr-5 align-middle">
+                <i class="fas fa-bell" />
+            </span>
+            <span class="inline-block align-middle mr-8">
+                <b class="capitalize">Error!</b> Incorrect Pin!
+            </span>
+            <button class="absolute bg-transparent text-2xl font-semibold leading-none right-0 top-0 mt-4 mr-6 outline-none focus:outline-none">
+                <span>×</span>
+            </button>
+        </div>
+        ';
+    }else{
+        $insert=mysqli_query($conn, "INSERT INTO d_loans (id,user,vendor,amt_collected,amt_paid,amt_remaining,deadline,date)
+        VALUES
+        ('','$qrsender','".$_SESSION['loggedin_vendor']."','$amt','0','$amt','$ddate','$date')");
+        if($insert === true){
+            $_SESSION['qrsender']=$qrsender;
+            $_SESSION['amt']=$amt;
+            $_SESSION['ddate']=$ddate;
+            header("location:agreed.php");
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

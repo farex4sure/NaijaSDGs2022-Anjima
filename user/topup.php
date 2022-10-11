@@ -1,3 +1,12 @@
+<?php
+session_start();
+include "config.php";
+$err="";
+if(!isset($_SESSION['loggedin_user'])){
+    header("location:signin.php");
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

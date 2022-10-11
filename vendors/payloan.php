@@ -1,3 +1,30 @@
+<?php
+session_start();
+include "config.php";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+$id=base64_decode($_GET["pay"]);
+    $task = "SELECT * FROM d_loans WHERE id='$id'";
+    $result2 = $conn->query($task);
+    if ($result2->num_rows > 0) {
+        while($row2 = $result2->fetch_assoc()) {
+            $user = $row2["user"];
+            $collect = $row2["amt_collected"];
+            $remaining = $row2["amt_remaining"];
+            $paid = $row2["amt_paid"];
+        }
+    }
+
+    $details = "SELECT * FROM users WHERE phone='$user'";
+    $result2 = $conn->query($details);
+    if ($result2->num_rows > 0) {
+        while($row2 = $result2->fetch_assoc()) {
+            $name = $row2["fullname"];
+            $pic = $row2["pic"];
+        }
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>

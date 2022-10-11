@@ -1,3 +1,185 @@
+<?php
+session_start();
+include "config.php";
+$err="";
+if(!isset($_SESSION['loggedin_user'])){
+    header("location:vendor_signin.php");
+}
+$id=base64_decode($_GET["pay"]);
+    $task = "SELECT * FROM d_loans WHERE id='$id'";
+    $result2 = $conn->query($task);
+    if ($result2->num_rows > 0) {
+        while($row2 = $result2->fetch_assoc()) {
+            $vendor = $row2["vendor"];
+            $collect = $row2["amt_collected"];
+            $remaining = $row2["amt_remaining"];
+            $paid = $row2["amt_paid"];
+        }
+    }
+$details = "SELECT * FROM users WHERE phone='".$_SESSION['loggedin_user']."'";
+    $result = $conn->query($details);
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $name = $row["fullname"];
+            $email = $row["email"];
+            $tpin = $row["tpin"];
+            $pic = $row["pic"];
+        }
+    }
+
+$detals = "SELECT * FROM vendors WHERE phone='$vendor'";
+    $result = $conn->query($detals);
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $vname = $row["fullname"];
+            $vpic = $row["pic"];
+        }
+    }
+
+$ubal = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_user']."'";
+    $result = $conn->query($ubal);
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $userbal = $row["balance"];
+        }
+    }
+
+$vbal = "SELECT * FROM wallet WHERE owner='$vendor'";
+    $result = $conn->query($vbal);
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $vendorbal = $row["balance"];
+        }
+    }
+if(isset($_POST['submit'])){
+    $amt_paid=$_POST['amt_paid'];
+    $pin1=$_POST['pin1'];
+    $pin2=$_POST['pin2'];
+    $pin3=$_POST['pin3'];
+    $pin4=$_POST['pin4'];
+    $pin=$pin1.$pin2.$pin3.$pin4;
+    $date=time();
+    $refid="T".date("Y_M_D_His_").rand(01111,99999);
+    $desc="I pay my loan";
+
+    if($pin !== $tpin){
+        $err='
+        <div id="alert-border-1" class="flex p-4 mb-2 bg-teal-100 border-t-4 border-teal-500 dark:bg-teal-200" role="alert">
+            <svg class="flex-shrink-0 w-5 h-5 text-teal-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd">
+                </path>
+            </svg>
+                <div class="ml-3 text-sm font-medium text-teal-700">
+                    Incorrect Pin.
+                </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-teal-100 dark:bg-teal-200 text-teal-500 rounded-lg focus:ring-2 focus:ring-teal-400 p-1.5 hover:bg-teal-200 dark:hover:bg-teal-300 inline-flex h-8 w-8" data-dismiss-target="#alert-border-1" aria-label="Close">
+                        <span class="sr-only">Dismiss</span>
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        ';
+    }elseif($amt_paid > $userbal){
+        $err='
+        <div id="alert-border-1" class="flex p-4 mb-2 bg-teal-100 border-t-4 border-teal-500 dark:bg-teal-200" role="alert">
+            <svg class="flex-shrink-0 w-5 h-5 text-teal-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd">
+                </path>
+            </svg>
+                <div class="ml-3 text-sm font-medium text-teal-700">
+                    Insufficient balance.
+                </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-teal-100 dark:bg-teal-200 text-teal-500 rounded-lg focus:ring-2 focus:ring-teal-400 p-1.5 hover:bg-teal-200 dark:hover:bg-teal-300 inline-flex h-8 w-8" data-dismiss-target="#alert-border-1" aria-label="Close">
+                        <span class="sr-only">Dismiss</span>
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        ';
+    }elseif($amt_paid > $remaining){
+        $err='
+        <div id="alert-border-1" class="flex p-4 mb-2 bg-teal-100 border-t-4 border-teal-500 dark:bg-teal-200" role="alert">
+            <svg class="flex-shrink-0 w-5 h-5 text-teal-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd">
+                </path>
+            </svg>
+                <div class="ml-3 text-sm font-medium text-teal-700">
+                    Your remaining credit is not upto '.$amt_paid.'.
+                </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-teal-100 dark:bg-teal-200 text-teal-500 rounded-lg focus:ring-2 focus:ring-teal-400 p-1.5 hover:bg-teal-200 dark:hover:bg-teal-300 inline-flex h-8 w-8" data-dismiss-target="#alert-border-1" aria-label="Close">
+                        <span class="sr-only">Dismiss</span>
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        ';
+    }else{
+        $vupdate=$amt_paid+$vendorbal;
+        $uupdate=$userbal-$amt_paid;
+        $insert=mysqli_query($conn, "INSERT INTO transfer(id,tto,tfrom,tdesc,tamt,ref_id,date)
+        VALUES('','$vendor','".$_SESSION['loggedin_user']."','$desc','$amt_paid','$refid','$date')");
+
+        $newamtremain=$remaining-$amt_paid;
+        $newamtpaid=$amt_paid+$paid;
+
+        $update=mysqli_query($conn, "UPDATE d_loans SET amt_paid='$newamtpaid', amt_remaining='$newamtremain' WHERE id='$id'");
+        $update1=mysqli_query($conn, "UPDATE wallet SET balance='$vupdate' WHERE owner='$vendor'");
+        $update2=mysqli_query($conn, "UPDATE wallet SET balance='$uupdate' WHERE owner='".$_SESSION['loggedin_user']."'");
+
+        if($insert === true && $update === true && $update1 === true && $update2 === true){
+            $err='
+        <div id="alert-border-1" class="flex p-4 mb-2 bg-teal-100 border-t-4 border-teal-500 dark:bg-teal-200" role="alert">
+            <svg class="flex-shrink-0 w-5 h-5 text-teal-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd">
+                </path>
+            </svg>
+                <div class="ml-3 text-sm font-medium text-teal-700">
+                    You have paid '.$amt_paid.' from your debt.
+                </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-teal-100 dark:bg-teal-200 text-teal-500 rounded-lg focus:ring-2 focus:ring-teal-400 p-1.5 hover:bg-teal-200 dark:hover:bg-teal-300 inline-flex h-8 w-8" data-dismiss-target="#alert-border-1" aria-label="Close">
+                        <span class="sr-only">Dismiss</span>
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        ';
+            ?>
+            <!--<script type="text/javascript">
+                window.location.href="payloan.php?pay=<?php echo ($_GET["pay"])?>";
+            </script>-->
+            <?php
+        }else{
+            $err='
+        <div id="alert-border-1" class="flex p-4 mb-2 bg-teal-100 border-t-4 border-teal-500 dark:bg-teal-200" role="alert">
+            <svg class="flex-shrink-0 w-5 h-5 text-teal-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd">
+                </path>
+            </svg>
+                <div class="ml-3 text-sm font-medium text-teal-700">
+                    Error.
+                </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-teal-100 dark:bg-teal-200 text-teal-500 rounded-lg focus:ring-2 focus:ring-teal-400 p-1.5 hover:bg-teal-200 dark:hover:bg-teal-300 inline-flex h-8 w-8" data-dismiss-target="#alert-border-1" aria-label="Close">
+                        <span class="sr-only">Dismiss</span>
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        ';
+        }
+    }
+    
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>

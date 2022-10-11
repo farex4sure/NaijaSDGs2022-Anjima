@@ -1,3 +1,11 @@
+<?php
+session_start();
+include "config.php";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

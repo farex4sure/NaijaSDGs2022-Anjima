@@ -1,3 +1,34 @@
+<?php
+session_start();
+ob_start();
+include "config.php";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+
+$qrsender=$_SESSION['qrsender'];
+$amt=$_SESSION['amt'];
+$ddate=$_SESSION['ddate'];
+
+$detail = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'";
+    $results = $conn->query($detail);
+    if ($results->num_rows > 0) {
+        while($rows = $results->fetch_assoc()) {
+            $fname = $rows["fullname"];
+            $pics = $rows["pic"];
+        }
+    }
+
+$details = "SELECT * FROM users WHERE phone='$qrsender'";
+    $result = $conn->query($details);
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $name = $row["fullname"];
+            $pic = $row["pic"];
+        }
+    }
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

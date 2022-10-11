@@ -1,3 +1,65 @@
+<?php
+
+session_start();
+include "config.php";
+if(!isset($_SESSION['loggedin_user'])){
+    header("location:signin.php");
+}
+
+// check user status
+$loggedin_user=$_SESSION['loggedin_user'];
+include "config.php";
+$checkuser=mysqli_query($conn, "SELECT * FROM users WHERE phone='$loggedin_user'");
+
+ while($row = $checkuser->fetch_assoc()) {
+                    $id = $row['id'];
+                    $name = $row["fullname"];
+                    $email = $row["email"];
+                    $tpin = $row["tpin"];
+                    $pic = $row["pic"];
+                    $st = $row["st"];
+
+                 if($st=="0"){
+
+                     header("location:kyc.php");
+
+                     ?>
+
+                    <script>
+                    window.location.href='kyc.php';
+                    </script>
+                     <?php
+
+                 }
+
+
+
+                }
+
+
+
+
+
+$details = "SELECT * FROM users WHERE phone='".$_SESSION['loggedin_user']."'";
+            $result = $conn->query($details);
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $id = $row['id'];
+                    $name = $row["fullname"];
+                    $email = $row["email"];
+                    $phone = $row["phone"];
+                    $tpin = $row["tpin"];
+                    $pic = $row["pic"];
+                }
+            }
+if(isset($_POST['submit'])){
+    $checkphone=$_POST['vphone'];
+    $_SESSION['checked']=$checkphone;
+    header("location:check.php");
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
