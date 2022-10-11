@@ -1,8 +1,8 @@
 <?php
-include "config.php";
-session_start();
-$err="";
-if(isset($_SESSION["loggedin_vendor"])){
+session_start(); 
+ $err="";
+
+if(isset($_SESSION["loggedin_user"])){
 header("Location:dashboard.php");
                 ?>
                 <script type="text/javascript">
@@ -11,48 +11,93 @@ header("Location:dashboard.php");
                 <?php
 
 }
-if(isset($_POST['submit'])){
-    $phone=$_POST['phone'];
-    $pwd=$_POST['password'];
+include "config.php";
 
-   $phone=$phone;
-    $phone=ltrim($phone, "+2340");
-    $phone="+234".$phone;
+if ($_SERVER['REQUEST_METHOD']==="POST" && isset($_POST['phone']) && isset($_POST['pwd'])) {
 
-if (empty($phone)) {
-    $err="<div class='p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800' role='alert'>
-                <span class='font-medium'>Error</span> Phone number or email address is required
-              </div>";
+    function validate($data){
+
+       $data = trim($data);
+
+       $data = stripslashes($data);
+
+       $data = htmlspecialchars($data);
+
+       return $data;
+
+    }
+
+    $phone = $_POST['phone'];
+
+$phone=ltrim($phone, "+2340");
+$phone="+234".$phone;
+    $pwd = validate(md5($_POST['pwd']));
+
+    if (empty($phone)) {
+
+      $err= "Phone number or email address is required";
+
+      
+
     }else if(empty($pwd)){
-        $err="<div class='p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800' role='alert'>
-                <span class='font-medium'>Error</span> Password is required
-              </div>";
+
+        $err= "Password is required";
+
+      
+
     }else{
-  
-    $sql = "SELECT * FROM vendors WHERE phone ='$phone' AND pwd='$pwd' or email='$phone' AND pwd='$pwd'";
-    
-    $result = mysqli_query($conn, $sql);
+
+        $sql = "SELECT * FROM users WHERE phone='$phone'  AND pwd='$pwd' OR email='$phone' AND pwd='$pwd'";
+
+        $result = mysqli_query($conn, $sql);
+
         if (mysqli_num_rows($result) === 1) {
+
             $row = mysqli_fetch_assoc($result);
 
-                $_SESSION['loggedin_vendor'] = $row['phone'];
-                header("location:dashboard.php");
+          
+              
+
+                $_SESSION['loggedin_user'] = $row['phone'];
+               
+
+                $err=" <script>
+             
+                   window.location.href = 'dashboard.php';
+              
+               </script>
+         ";
+
+                
+                
+
+             
+
+           
+
         }else{
-                $err="<div class='p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800' role='alert'>
-                <span class='font-medium'>Error</span> Incorrect Login Credentials
-              </div>";
-        
+
+            $err="<span class='text-sm text-red-500  dark:bg-red-200 dark:text-red-800' role='alert'>
+         Incorrect Login Credentials
+          </span>";
+
+       
+
+        }
+
     }
+
 }
-}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anjima | Vendor Login</title>
+    <title>Anjima | User Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
@@ -64,8 +109,8 @@ if (empty($phone)) {
         </div>
         <div class='mb-6 w-full'>
             <div class='flex divide-x-2 w-full'>
-                <a href="../user/signin.php" class='flex justify-center w-full py-3 bg-white text-teal-600 bg-opacity-75 hover:bg-teal-600 hover:bg-opacity-75 hover:text-teal-50'>User Login</a>
-                <a href="#" class='flex justify-center w-full py-3 md:py-4 bg-teal-600 text-teal-50 bg-opacity-75'>Vendor Login</a>
+                <a href="#" class='flex py-3 md:py-4 bg-teal-600 text-teal-50 bg-opacity-75 justify-center w-full'>User Login</a>
+                <a href="../vendors/vendor_signin.php" class='flex py-3 bg-white text-teal-600 bg-opacity-75 hover:bg-teal-600 hover:bg-opacity-75 hover:text-teal-50 justify-center w-full'>Vendor Login</a>
             </div>
         </div>
         <div class='w-full max-w-5xl px-4'>
@@ -76,24 +121,33 @@ if (empty($phone)) {
                 </div>
             </div>
             <div>
-                <form action="vendor_signin.php" method="post">
-                <?php echo $err ?>
+                <form method="POST">
                     <div class="mb-6">
                         <div class='flex items-center mb-2'>
                             <label for="phone-email" class="block text-sm font-medium text-gray-900 dark:text-gray-300 mr-auto">Mobile</label>
                         </div>
-                        <input type="text" name="phone" class="bg-gray-50 border-b-2 border-gray-300 text-gray-900 text-sm md:rounded-lg focus:outline-none focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Email/Phone" required="">
+                        <input type="text" id="phone-email" name="phone" class="bg-gray-50 border-b-2 border-gray-300 text-gray-900 text-sm md:rounded-lg focus:outline-none focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Email/Phone" required="">
                     </div>
                     <div class="mb-6">
                         <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Your password</label>
-                        <input type="password" name="password" class="bg-gray-50 border-b-2 border-gray-300 text-gray-900 text-sm md:rounded-lg focus:outline-none focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Password" required="">
+                        <input type="password" name="pwd" id="password" class="bg-gray-50 border-b-2 border-gray-300 text-gray-900 text-sm md:rounded-lg focus:outline-none focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Password" required="">
                     </div>
                     <div class="flex items-start mb-6">
-                        <div class="flex items-center h-5 text-gray-700">
-                            <a href="#" class="focus:teal-600 hover:teal-600">Forgot Password?</a>
+                        <div class=" items-center h-5 text-gray-700">
+                        <span><?php
+                        
+                        if(!empty($err)){
+
+                            echo $err;
+                        }
+                        ?>
+                        </span>
+                        
+                            <p><a href="#" class="focus:teal-600 hover:teal-600">Forgot Password?</a>
+                            </p>
                         </div>
                     </div>
-                    <button type="submit" name="submit" class="text-white bg-teal-600 hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Sign in</button>
+                    <button type="submit" class="text-white bg-teal-600 hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Sign in</button>
                 </form>
             </div>
             <div class="mt-8 border p-3 rounded-lg bg-gray-300 bg-opacity-50">

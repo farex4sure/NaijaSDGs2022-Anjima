@@ -2,10 +2,10 @@
 session_start();
 include "config.php";
 $err="";
-if(!isset($_SESSION['loggedin_vendor'])){
-    header("location:vendor_signin.php");
+if(!isset($_SESSION['loggedin_user'])){
+    header("location:signin.php");
 }
-$details = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'";
+$details = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_user']."'";
             $result = $conn->query($details);
             if ($result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
@@ -13,7 +13,7 @@ $details = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'
                     $pic = $row["pic"];
                 }
             }
-$balance = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_vendor']."'";
+$balance = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_user']."'";
             $result = $conn->query($balance);
             if ($result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
@@ -54,7 +54,7 @@ if(isset($_POST['submit'])){
     
     $newbal=$balance-$_SESSION['amount'];
 
-    $detail2 = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'";
+    $detail2 = "SELECT * FROM users WHERE phone='".$_SESSION['loggedin_user']."'";
             $result = $conn->query($detail2);
             if ($result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
@@ -73,7 +73,7 @@ if(isset($_POST['submit'])){
     </div>
     ';
     }else{
-    $update = "UPDATE wallet SET balance = '$newbal' WHERE owner='".$_SESSION['loggedin_vendor']."'";
+    $update = "UPDATE wallet SET balance = '$newbal' WHERE owner='".$_SESSION['loggedin_user']."'";
     $updated = mysqli_query($conn,$update);
 
     $check = "SELECT * FROM users WHERE phone='".$_SESSION['r_phone']."'";
@@ -89,7 +89,7 @@ if(isset($_POST['submit'])){
 }
 $refid="T".date("Y_M_D_His_").rand(01111,99999);
 $date=time();
-$insert="INSERT INTO transfer (id,tto,tfrom,tdesc,tamt,ref_id,date)VALUES('','".$_SESSION['r_phone']."','".$_SESSION['loggedin_vendor']."','','".$_SESSION['amount']."','$refid','$date')";
+$insert="INSERT INTO transfer (id,tto,tfrom,tdesc,tamt,ref_id,date)VALUES('','".$_SESSION['r_phone']."','".$_SESSION['loggedin_user']."','','".$_SESSION['amount']."','$refid','$date')";
 $inserted = mysqli_query($conn,$insert);
 if($inserted == true){
 header("location:confirm.php");
@@ -126,7 +126,7 @@ header("location:confirm.php");
             <div class='flex items-center w-full max-w-6xl'>
                 <div class='flex items-center gap-2 mr-auto'>
                     <div class='flex items-center gap-4'>
-                        <a href="anjima.php"><i class="fa fa-arrow-left"></i></a>
+                        <a href="transfer.php"><i class="fa fa-arrow-left"></i></a>
                         <h3 class='w-full text-sm md:text-lg font-semibold text-gray-600'><?php echo $r_name ?></h3>
                     </div>
                 </div>
@@ -150,11 +150,11 @@ header("location:confirm.php");
                             <?php
                             if($r_pic != ''){
                             ?>
-                            <img class="mb-3 w-24 h-24 rounded-full shadow-lg" src="../user/images/<?php echo $r_pic ?>" alt="Bonnie image">
+                            <img class="mb-3 w-24 h-24 rounded-full shadow-lg" src="images/<?php echo $r_pic ?>" alt="Bonnie image">
                               <?php
                             }else{
                               ?>
-                            <img class="mb-3 w-24 h-24 rounded-full shadow-lg" src="vendor/<?php echo $v_pic ?>" alt="Bonnie image">
+                            <img class="mb-3 w-24 h-24 rounded-full shadow-lg" src="../vendors/vendor/<?php echo $v_pic ?>" alt="Bonnie image">
                              <?php
                             }
                              ?>
@@ -174,6 +174,22 @@ header("location:confirm.php");
         <!-- MAIN ENDS HERE -->
         
         <!-- FOOTER STARTS HERE -->
+        <footer class='flex w-full justify-center p-3 px-0 border-t border-1 bg-gray-300 bg-opacity-25'>
+            <div class='flex justify-around w-full max-w-5xl'>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-home'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-bank'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-message'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-bars'></i></a>
+                </span>
+            </div>
+        </footer>
         <!-- FOOOTER ENDS HERE -->
     </div>
     <!-- MODAL SECTION STARTS HERE -->
@@ -186,7 +202,7 @@ header("location:confirm.php");
                     <div class="p-6 text-center">
                         <svg class="mx-auto mb-4 text-gray-400 w-14 h-14 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Enter Your Pin</h3>
-                        <form action="c_anjima.php" method="post">
+                        <form action="c_transfer.php" method="post">
                         <div class="flex justify-around w-full mb-6">
                             <input type="password" name="pin1" class="text-center shadow-sm bg-gray-50 border border-gray-300 text-teal-600 text-sm focus:ring-teal-500 focus:border-teal-500 block w-10 p-2.5" maxlength="1" placeholder="*" required="">
                             <input type="password" name="pin2" class="text-center shadow-sm bg-gray-50 border border-gray-300 text-teal-600 text-sm focus:ring-teal-500 focus:border-teal-500 block w-10 p-2.5" maxlength="1" placeholder="*" required="">

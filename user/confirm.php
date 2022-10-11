@@ -1,8 +1,8 @@
 <?php
 session_start();
 include "config.php";
-if(!isset($_SESSION['loggedin_vendor'])){
-    header("location:vendor_signin.php");
+if(!isset($_SESSION['loggedin_user'])){
+    header("location:signin.php");
 }
 $details = "SELECT * FROM users WHERE phone='".$_SESSION['r_phone']."'";
             $result = $conn->query($details);
@@ -18,13 +18,6 @@ $vdetails = "SELECT * FROM vendors WHERE phone='".$_SESSION['r_phone']."'";
                 while($row = $result->fetch_assoc()) {
                     $name = $row["fullname"];
                     $pic = $row["pic"];
-                }
-            }
-$tdetails = "SELECT * FROM transfer WHERE tfrom='".$_SESSION['loggedin_vendor']."' ORDER BY ID DESC LIMIT 1";
-            $result = $conn->query($tdetails);
-            if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
-                    $t_id = $row["ref_id"];
                 }
             }
 ?>
@@ -85,7 +78,7 @@ $tdetails = "SELECT * FROM transfer WHERE tfrom='".$_SESSION['loggedin_vendor'].
                                 <span>Transaction ID</span>
                             </div>
                             <div class='flex justify-end items-center font-semibold'>
-                                <span class="truncate w-1/2"><?php echo $t_id ?></span>
+                                <span class="truncate">1014mzzu4a00</span>
                             </div>
                         </div>
                         <div class='flex items-center justify-between w-full py-3 px-3'>
@@ -147,8 +140,9 @@ function myFunction() {
 </script>
     <script>
 function myFunction2() {
-  location.replace("anjima.php")
+  location.replace("transfer.php")
 }
 </script>
+
 </body>
 </html>

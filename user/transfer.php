@@ -2,19 +2,10 @@
 session_start();
 include "config.php";
 $err="";
-if(!isset($_SESSION['loggedin_vendor'])){
-    header("location:vendor_signin.php");
+if(!isset($_SESSION['loggedin_user'])){
+    header("location:signin.php");
 }
-$details = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'";
-            $result = $conn->query($details);
-            if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
-                    $id = $row['id'];
-                    $name = $row["fullname"];
-                    $pic = $row["pic"];
-                }
-            }
-$balance = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_vendor']."'";
+$balance = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_user']."'";
             $result = $conn->query($balance);
             if ($result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
@@ -32,7 +23,7 @@ if(isset($_POST['submit'])){
     $phone="+234".$phone;
     $r_phone=$phone;
 
-    if($r_phone == $_SESSION['loggedin_vendor']){
+    if($r_phone == $_SESSION['loggedin_user']){
         $err='
         <div role="alert">
             <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
@@ -58,7 +49,7 @@ if(isset($_POST['submit'])){
         $_SESSION['amount']=$amount;
         $_SESSION['r_phone']=$r_phone;
         echo $_SESSION['r_phone'];
-        header("location:c_anjima.php");
+        header("location:c_transfer.php");
     }else{
         $err='
         <div role="alert">
@@ -122,7 +113,7 @@ if(isset($_POST['submit'])){
                 </div>
                 <div class='flex flex-col mt-5'>
                 <?php echo $err ?>
-                    <form action="anjima.php" method="post">
+                    <form action="transfer.php" method="post">
                         <div class="mb-6">
                             <label for="amount" class="w-full mb-2 text-sm md:text-lg font-semibold text-gray-600">Amount (&#8358)</label>
                             <input type="text" name="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg                                                    focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"placeholder="Amount" required>
@@ -142,6 +133,22 @@ if(isset($_POST['submit'])){
         <!-- MAIN ENDS HERE -->
         
         <!-- FOOTER STARTS HERE -->
+        <footer class='flex w-full justify-center p-3 px-0 border-t border-1 bg-gray-300 bg-opacity-25'>
+            <div class='flex justify-around w-full max-w-5xl'>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-home'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-bank'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-message'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-bars'></i></a>
+                </span>
+            </div>
+        </footer>
         <!-- FOOOTER ENDS HERE -->
     </div>
     <script src="https://unpkg.com/flowbite@1.4.7/dist/flowbite.js"></script>
