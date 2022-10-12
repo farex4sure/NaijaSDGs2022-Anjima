@@ -1,3 +1,49 @@
+<?php
+session_start();
+ob_start();
+include "config.php";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+
+
+}
+
+$loggedin_vendor=$_SESSION['loggedin_vendor'];
+
+$getVName=mysqli_query($conn, "SELECT * FROM vendors WHERE phone='$loggedin_vendor'");
+while($vName=mysqli_fetch_assoc($getVName)){
+$name=$vName['fullname'];
+
+
+
+
+
+
+}
+$qrsender=$_SESSION['qrsender'];
+
+
+// get the latest transaction
+
+
+
+$glt=mysqli_query($conn, "SELECT * FROM transfer WHERE tfrom='$qrsender' AND tto='$loggedin_vendor' ORDER BY id DESC LIMIT 1");
+
+
+while($tDetails=mysqli_fetch_assoc($glt)){
+
+
+
+
+$amount=$tDetails['tamt'];
+$refid=$tDetails['ref_id'];
+
+
+}
+
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,3 +1,12 @@
+<?php
+include "config.php";
+session_start();
+$err="";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+$qrsender=base64_decode($_GET['u']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,7 +26,7 @@
 				<a href="./scan.php?u=<?php echo $_GET['u'] ?>" >
 					<div class="card text-white">
 						<i class="fa-solid fa-hand-holding-dollar fa-2x"></i>
-						<p>Log In</p>
+						<p>Pay with anjima</p>
 					</div>
 				</a>
 			</div>
@@ -25,7 +34,7 @@
 				<a href="./form.php?u=<?php echo $_GET['u'] ?>">
 					<div class="card text-white">
 						<i class="fa-solid fa-file fa-2x"></i>
-						<p>Log In</p>
+						<p>Agreement</p>
 					</div>
 				</a>
 			</div>

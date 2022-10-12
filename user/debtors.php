@@ -1,8 +1,8 @@
 <?php
 session_start();
 include "config.php";
-if(!isset($_SESSION['loggedin_vendor'])){
-    header("location:vendor_signin.php");
+if(!isset($_SESSION['loggedin_user'])){
+    header("location:signin.php");
 }
 
 ?>
@@ -29,19 +29,20 @@ if(!isset($_SESSION['loggedin_vendor'])){
     </div>
     <div class="">
     <?php
-    $details = "SELECT * FROM d_loans WHERE vendor='".$_SESSION['loggedin_vendor']."'";
+    $details = "SELECT * FROM d_loans WHERE user='".$_SESSION['loggedin_user']."'";
         $result = $conn->query($details);
         if ($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
                 $id = $row["id"];
-                $debtor = $row["user"];
+                $debtor = $row["vendor"];
                 $st = $row["amt_remaining"];
 
-    $debt = "SELECT * FROM users WHERE phone='$debtor'";
+    $debt = "SELECT * FROM vendors WHERE phone='$debtor'";
         $res = $conn->query($debt);
         if ($res->num_rows > 0) {
             while($rows = $res->fetch_assoc()) {
                 $name = $rows["fullname"];
+                $pic = $rows["pic"];
             }
         }
     $kyc = "SELECT * FROM kyc WHERE phone='$debtor'";
@@ -60,7 +61,7 @@ if(!isset($_SESSION['loggedin_vendor'])){
                         <a href="payloan.php?pay=<?php echo base64_encode($id)?>" class="py-3 sm:py-4">
                             <div class="flex items-center space-x-4">
                                 <div class="flex-shrink-0">
-                                    <img class="w-16 h-16 rounded-full" src="https://cdn.pixabay.com/photo/2019/06/05/08/37/dog-4253238__340.jpg" alt="  ">
+                                    <img class="w-16 h-16 rounded-full" src="../vendors/vendor/<?php echo $pic ?>" alt="  ">
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
