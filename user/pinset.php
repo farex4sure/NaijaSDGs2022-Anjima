@@ -5,77 +5,7 @@ $err="";
 if(!isset($_SESSION['loggedin_user'])){
     header("location:signin.php");
 }
-$balance = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_user']."'";
-            $result = $conn->query($balance);
-            if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
-                    $id = $row['id'];
-                    $balance = $row["balance"];
-                }
-            }
-if(isset($_POST['submit'])){
-    $bal=$_POST['bal'];
-    $amount=$_POST['amount'];
-    $r_phone=$_POST['phone'];
 
-    $phone=$r_phone;
-    $phone=ltrim($phone, "+2340");
-    $phone="+234".$phone;
-    $r_phone=$phone;
-
-    if($r_phone == $_SESSION['loggedin_user']){
-        $err='
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                Error
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                <p>You cannot send money to yourself.</p>
-            </div>
-        </div>
-        ';
-    }else{
-
-    if($bal >= $amount){
-
-    $query="SELECT * FROM users WHERE phone='$r_phone'";
-    $result=mysqli_query($conn,$query) or die(mysqli_error($conn));
-    $count=mysqli_num_rows($result);
-
-    $query2="SELECT * FROM vendors WHERE phone='$r_phone'";
-    $result2=mysqli_query($conn,$query2) or die(mysqli_error($conn));
-    $count2=mysqli_num_rows($result2);
-    if($count > 0 || $count2 > 0){
-        $_SESSION['amount']=$amount;
-        $_SESSION['r_phone']=$r_phone;
-        echo $_SESSION['r_phone'];
-        header("location:c_transfer.php");
-    }else{
-        $err='
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                Error
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                <p>This is phone number is not registered to anjima.</p>
-            </div>
-        </div>
-        ';
-    }
-}else{
-    $err='
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                Error
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                <p>Insufficient Ballance.</p>
-            </div>
-        </div>
-        ';
-}
-}
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,8 +29,7 @@ if(isset($_POST['submit'])){
             <div class='flex items-center w-full max-w-6xl'>
                 <div class='flex items-center gap-2 mr-auto'>
                     <div class='flex items-center gap-4'>
-                        <a href="dashboard.php"><i class="fa fa-arrow-left"></i></a>
-                        <h3 class='w-full text-sm md:text-lg font-semibold text-gray-600'>Transfer Money</h3>
+                        <h3 class='w-full text-sm md:text-lg font-semibold text-gray-600'>Pin</h3>
                     </div>
                 </div>
             </div>
@@ -116,21 +45,22 @@ if(isset($_POST['submit'])){
                     </div>
                 </div>
                 <div class='flex flex-col mt-5'>
-                <?php echo $err ?>
-                    <form action="transfer.php" method="post">
-                        <div class="mb-6">
-                            <label for="amount" class="w-full mb-2 text-sm md:text-lg font-semibold text-gray-600">Amount (&#8358)</label>
-                            <input type="text" name="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg                                                    focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"placeholder="Amount" required>
-                        </div>
-                        <div class="mb-6">
-                            <label for="phone" class="w-full mb-2 text-sm md:text-lg font-semibold text-gray-600">Phone Number</label>
-                            <input type="text" name="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg                                                    focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"placeholder="Phone Number" required>
-                        </div>
-                        <input hidden type="text" name="bal" value="<?php echo $balance ?>">
-                        <button type="submit" name="submit" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none                                         focus:ring-teal-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">
-                        Next
-                        </button>
-                    </form>
+                <?php
+                echo '
+                <div role="alert">
+                    <div class="bg-green-500 text-white font-bold rounded-t px-4 py-2">
+                        Success
+                    </div>
+                    <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+                        <p>You have successfully set your pin.</p>
+                    </div>
+                </div>
+                ';
+                ?>
+                
+                <a href="dashboard.php" class="mt-5 text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">
+                Ok
+                </a>
                 </div>
             </div>
         </main>

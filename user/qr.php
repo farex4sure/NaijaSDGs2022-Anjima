@@ -1,10 +1,58 @@
 <?php
 session_start();
+
 include "config.php";
-$err="";
+
+
+
+
+
+
 if(!isset($_SESSION['loggedin_user'])){
-    header("location:signin.php");
+header("location:signin.php");
+
+
+?>
+<script>
+window.location.href="signin.php";
+</script>
+
+<?php
 }
+
+
+else{
+
+
+
+$loggedin_user=$_SESSION['loggedin_user'];
+
+//user details
+$getUserDetails=mysqli_query($conn, "SELECT * FROM users WHERE phone='$loggedin_user'");
+
+while($row=mysqli_fetch_assoc($getUserDetails)){
+
+$fullname=$row["fullname"];
+$phone=$row["phone"];
+$email=$row["email"];
+$tpin=$row["tpin"];
+$pic=$row["pic"];
+$tier=$row["tier"];
+
+
+
+
+
+
+}
+if($tpin == "0"){
+    header("location:setpin.php");
+}
+
+}
+
+
+
 
 ?>
 <!DOCTYPE html>
@@ -14,7 +62,7 @@ if(!isset($_SESSION['loggedin_user'])){
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anjima | User Top up</title>
+    <title>Anjima | Vendor Withdraw</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://unpkg.com/flowbite@1.4.7/dist/flowbite.min.css" />
 </head>
@@ -30,7 +78,7 @@ if(!isset($_SESSION['loggedin_user'])){
                 <div class='flex items-center gap-2 mr-auto'>
                     <div class='flex items-center gap-4'>
                         <a href="dashboard.php"><i class="fa fa-arrow-left"></i></a>
-                        <h3 class='w-full text-sm md:text-lg font-semibold text-gray-600'>Top up Wallet</h3>
+                        <h3 class='w-full text-sm md:text-lg font-semibold text-gray-600'>Qr Code</h3>
                     </div>
                 </div>
             </div>
@@ -39,83 +87,35 @@ if(!isset($_SESSION['loggedin_user'])){
 
         <!-- MAIN STARTS HERE -->
         <main class='flex justify-center mb-auto h-full overflow-auto'>
-            <div class='h-full w-full max-w-6xl shadow px-3 md:px-5 lg:px-8'>
-                <div class='flex justify-center w-full rounded-lg py-1 md:mb-6 md:mt-4'>
-                    <div class='w-32 md:w-44'>
-                        <img class='' src="../images/anj.png" alt="">
+            <div class="flex flex-col w-full p-4">
+                <h3 class='w-full p-4 text-xl md:text-2xl font-semibold text-gray-600'>My Qr Code</h3>
+                <div class='flex flex-col justify-center items-center h-full w-full rounded-lg bg-white bg-opacity-75'>
+                    <div class='flex justify-center h-44 w-44 rounded-lg border-solid border-2 border-black'>
+                    <!-- QR Image  -->
+                        <img class="object-cover" src="https://api.qrserver.com/v1/create-qr-code/?size=1024x1024&data=<?php echo base64_encode($phone); ?>">
                     </div>
-                </div>
-                <div class='flex flex-col mt-5'>
-                <?php echo $err ?>
-                    <form onsubmit(); return false();>
-                        <div class="mb-6">
-                            <label for="amount" class="w-full mb-2 text-sm md:text-lg font-semibold text-gray-600">Amount (&#8358)</label>
-                            <input type="text" id="amount" name="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg                                                    focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"placeholder="Amount" required>
-                        </div>
-                        <button type="button" onclick="payWithPaystack()" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none                                         focus:ring-teal-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">
-                        Top up
-                        </button>
-                    </form>
                 </div>
             </div>
         </main>
         <!-- MAIN ENDS HERE -->
         
         <!-- FOOTER STARTS HERE -->
-        <footer class='flex w-full justify-center p-3 px-0 border-t border-1 bg-gray-300 bg-opacity-25'>
-            <div class='flex justify-around w-full max-w-5xl'>
-                <span class='text-teal-600 text-lg md:text-3xl'>
-                    <a href="#"><i class='fa fa-home'></i></a>
-                </span>
-                <span class='text-teal-600 text-lg md:text-3xl'>
-                    <a href="#"><i class='fa fa-bank'></i></a>
-                </span>
-                <span class='text-teal-600 text-lg md:text-3xl'>
-                    <a href="#"><i class='fa fa-message'></i></a>
-                </span>
-                <span class='text-teal-600 text-lg md:text-3xl'>
-                    <a href="#"><i class='fa fa-bars'></i></a>
-                </span>
+        <footer class='flex w-full justify-center p-3 px-0 bg-opacity-25'>
+            <div class='flex justify-around w-full max-w-5xl px-4 gap-3'>
+                <button onclick="window.print()" class='w-full py-1.5 md:py-2 lg:py-3 font-semibold text-teal-600 bg-teal-100 rounded-2xl border border-gray-00 text-lg md:text-3xl'>
+                    Print
+                </button>
             </div>
         </footer>
         <!-- FOOOTER ENDS HERE -->
     </div>
     <script src="https://unpkg.com/flowbite@1.4.7/dist/flowbite.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://js.paystack.co/v1/inline.js"></script>
-
-<script>
-  function payWithPaystack(){
-
- document.cookie = "amount = " + document.getElementById("amount").value;
-  var handler = PaystackPop.setup({
-      key: 'pk_test_0ff1432465dd74912a4611ab331627725ed87907',
-      email: 'Anjima@gmail.com',
-      amount: document.getElementById("amount").value+"00",
-      ref: '<?php echo mt_rand(00000000,12345678);?>', // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
-      metadata: {
-         custom_fields: [
-            {
-                display_country: "",
-                display_city: "",
-                display_id: ""
-                 }
-         ]
-      },
-      callback: function(response){
-           window.location.replace("top-up-verify.php?ref="+response.reference);
-      },
-      onClose: function(){
-          alert('Top up canceled');
-      }
-    });
-    handler.openIframe();
-  }
-</script>
-    <script>
+        <script>
         $(window).on('load', function(){
             $('.spin-wrapper').fadeOut("slow");
         });
         </script>
 </body>
 </html>
+

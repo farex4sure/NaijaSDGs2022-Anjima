@@ -68,6 +68,7 @@ if(isset($_POST['submit2'])){
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="js/jquery.min.js"></script> 
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,6 +77,9 @@ if(isset($_POST['submit2'])){
     <link rel="stylesheet" href="https://unpkg.com/flowbite@1.4.7/dist/flowbite.min.css" />
 </head>
 <body>
+    <div class="spin-wrapper h-screen flex justify-center items-center bg-gray-400">
+        <img class="animate-ping w-20 h-20" src="../images/an.png">
+    </div>
         <div class='flex h-screen flex-col bg-gray-100' style="background-image: url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBw8PDxUPDw8VDw8NFRUNDw0NFRUVDQ0NFRUXFhUVFRUYHSggGBolHRUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKBQUFDgUFDisZExkrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrK//AABEIALcBEwMBIgACEQEDEQH/xAAZAAEBAQEBAQAAAAAAAAAAAAAAAQIDBwT/xAAnEAEBAAEDBAICAwEBAQAAAAAAAVECEUFhwdHwoeEhMQOBsRKRcf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD2UABYLAa0xoigAzq1bAatWznalqAqAAAAsJAAAAAA3QAA3AE3UApaWgXzhL5wW98FvfAFvfBb3xkt655hb1zzMgb98ZN/fxk3655mTfvjINRFiAoAK3pjEdNINCM6tWwLq1bONu6W7rAAABAFWQkAAAAAEAAQABQCqlAtLe5S3uCW9c8lvXPMLe/Jb1zyCW9c8wt655mS3rnkt6556gW9c8zK79c8zKW9c89V36556gsCAKIoLG5XMuvYHTXr2cLq3Y1am9GkFkUQA3S1m0Gt2pE0xQVAABQEABBLQXdN03a0wFkUAEqlBKW+7lL7+QS3vyW9+VvnlLe/IJb1zyW9c89Vt78lvfnqCb9c89V3789T756r989QWI1IAyFQC1z1VumnSDOjRzf/AB0EAS0tc9WoFupvRp2/f7T+PRt+b+/8bABAURoBAAQS0C1i01Vr+PRzf6gLo081sAAAAASlVKBS+eSlBL55X75Ptr7BPvnq1J7v1WTvzcte/u5AkFgDglWgJItEAS1axaCaq1o0bfm/v/F06dmgEVAAbkBNkaqAgIBWatXTpBNGjmtgAAAAAAAACKKA1J7+ST38te8gfecnvOT3k95BYqRQfOBQQEoJWtMWRQBQGTZdnTTNgZmla0zr1AxagUEBZAJFAAAAAAAAAAABqI3AWKAAFAVz/wCwHNFqALISNANbC29+QSpatvflfvkCe/ld/d+pv356s69ffnqBq1+/257m/v8AYAigEUAAAAAAAAAAAAUFjcc29INAUCuWrVuatW7IKgAU2FBWtkkavnIF88pb35q3zlL55oL980t783KW9+b0Z16u/NyC69ffm5Y39/OUt783J95yC+/Ke/J7zlfecgKnvyAoAAAAAAAAAAAAgDW7Uc2pQdN3PXq3S1AAQFEUFVGganv7L5yt9/aXzkC+cpq856Lq85Y/k1d89AP5NXfm9HO3vnJfOS+c5AvnOV+85T7zk+85Bfecr7zlPecr7zkD3nIe85PfkFAAAAAAAABAAQATcBd1SKACAG6Ws2g1uJ/zQHVr3lluAt9/ZfOS+/tnXq75BP5NXfLnfOVvnKXzkEvnJfOcrfOUvnOQL5zlfvOS+c5PvOQPecr7zlPecr7zkD3nJ78nvOQFAAAAAABABEtAtS1LWdwa3akSTZqQCRQBEtLWdVBLWtGnmmjRzf6joAACtMloNa9Tnff2tSgX39pfOVpfIJfOS+crfOUs75AvnOT7zlfvOT3nIJ7zlfecnvye/IHvyCgAAAAAgCCWgWsXUmrU53Vv+IDW7ppmzOmbf/W9M3BdMaABKJQS1dGjmrp0tAAAAACABQApfIAXyXyAH3/p78gB78nvyAHvyACiAKIAIoDNrnqoA469XE/dddGn/mdeagDejTv+eHUAAAQ0xQFAAAAAB//Z);">
 
             <!-- HEADER SECTION STARTS HERE -->
@@ -188,32 +192,41 @@ if(isset($_POST['submit2'])){
                                 </button>
                             </div>
                         </div>
+                        <?php 
+                            $loan = "SELECT * FROM collected_loans WHERE phone='".$_SESSION['loggedin_user']."'";
+                                $result = $conn->query($loan);
+                                if ($result->num_rows > 0) {
+                                    while($row = $result->fetch_assoc()) {
+                                        $amt = $row["amt"];
+                                    }
+                                }
+                                $remain=10000-$amt;
+                        ?>
                           <div id="accordion-color-body-1" class="hidden" aria-labelledby="accordion-color-heading-1">
                             <div class="p-1 font-light    border-gray-200 der-gray-700 gray-900">
                                 <div class="grid grid-cols-2 bg-white rounded-lg bg-opacity-50 my-4 w-full h-full md:grid-cols-4 sm:grid-col-2  justify-items-center  md:py-8">
                                     <a href="#" class="flex flex-col p-2 items-center text-gray-700 justify-center hover:text-green-500 hover:shadow-lg rounded">
                                         <div class="flex flex-col gap-2">
                                          <span class="font-medium block border-b-2 border-teal-600" >Eligible loan Credit</span>
-                                         <p class="italic font- text-gray-700 text-center"><span class="">&#8358 3,000</span> </p>
+                                         <p class="italic font- text-gray-700 text-center"><span class="">&#8358 10,000</span> </p>
                                         </div>
                                      </a>
                                      <a href="#" class="flex flex-col p-2 items-center text-gray-700 justify-center hover:text-green-500 hover:shadow-lg rounded">
                                         <div class="flex flex-col gap-2">
                                          <span class="font-medium block border-b-2 border-teal-600" >Credit Remaining</span>
-                                         <p class="italic font- text-gray-700 text-center"><span class="">&#8358 3,000</span> </p>
+                                         <p class="italic font- text-gray-700 text-center"><span class="">&#8358 <?php echo number_format($remain) ?></span> </p>
                                         </div>
                                      </a>
                                     <a href="#" class="flex flex-col p-2 items-center text-gray-700 justify-center hover:text-green-500 hover:shadow-lg rounded">
                                         <div class="flex flex-col gap-2">
                                          <span class="font-medium block border-b-2 border-teal-600" >Credit Used</span>
-                                         <p class="italic font- text-gray-700 text-center"><span class="">&#8358 3,000</span> </p>
+                                         <p class="italic font- text-gray-700 text-center"><span class="">&#8358 <?php echo number_format($amt) ?></span> </p>
                                         </div>
                                      </a>
                                     <a href="#" class="flex flex-col p-2 items-center text-gray-700 justify-center hover:text-green-500 hover:shadow-lg rounded">
                                        <div class="flex flex-col gap-2">
                                         <span class="font-medium block border-b-2 text-center border-teal-600" >Credit Paid</span>
-                                        <p class="italic font- text-gray-700 text-center"><span class="block">&#8358 3,000 </span> </p>
-                                        <!-- <p class="italic font- text-gray-700 text-center"><span class="">&#8358 3,000</span> </p> -->
+                                        <p class="italic font- text-gray-700 text-center"><span class="block">&#8358 0 </span> </p>
                                       </div>
                                     </a>
                                 </div>  
@@ -224,17 +237,38 @@ if(isset($_POST['submit2'])){
                         <div class='w-full px-2 mb-2'>
                             <h3 class='w-full text-sm md:text-lg font-semibold text-gray-600'>Money Transfer</h3>
                         </div>
-                  <div class="grid grid-cols-4 h-full md:grid-cols-4 sm:grid-col-2 w-full justify-items-center gap-y-8 gap-x-6 py-1 px- md:py-8">
+                        <div class="grid grid-cols-4 h-full md:grid-cols-4 sm:grid-col-2 w-full justify-items-center gap-y-8 gap-x-6 py-1 px- md:py-8">
                         <a href="transfer.php" class="flex flex-col items-center text-teal-600 justify-center  gap-1   ">
                             <img src="images/an.png" class="h-8 w-9 md:h-16 md:w-16" alt="">
                             <span class="font-bold text-2xl"></span>
                             <p class="italic text-xs text-gray-700 text-center"><span class="">Transaction</span> </p>
                         </a>
-                        <a href="kyc.html" class="flex flex-col items-center text-teal-600 justify-center gap-1   ">
+                        <button class="flex flex-col items-center text-teal-600 justify-center gap-1" id="withdrawDropdownButton" data-dropdown-toggle="withdrawDropdown">
                             <span class="text-3xl md:text-5xl lg:text-6xl "><i class="fa fa-search"></i></span>
                             <span class="font-bold text-2xl"></span>
                             <p class="italic text-sm text-gray-700 text-center"><span class="">Vendors</span> </p>
-                        </a>
+                        </button>
+                            <!-- Dropdown menu -->
+                            <div id="withdrawDropdown" class="hidden z-10 ml-5 w-28 bg-white rounded divide-y divide-gray-100 shadow">
+                                <ul class="px-[3px] text-sm text-gray-700" aria-labelledby="withdrawDropdownButton">
+                                    <li>
+                                        <a href="vendors.php" class='flex justify-between items-center py-1 px-1 h-full'>
+                                            <span class='text-xs md:text-base'>Vendors</span>
+                                            <span class="text-teal-600 text-base md:text-md">
+                                                <i class="fa fa-search"></i>
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="debtors.php" class='flex justify-between items-center py-1 px-1 h-full'>
+                                            <span class='text-xs md:text-base'>debtors</span>
+                                            <span class="text-teal-600 text-base md:text-md">
+                                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                                            </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         <a href="qr.php" class="flex flex-col items-center text-teal-600 justify-center gap-1   ">
                             <span class="text-3xl md:text-5xl lg:text-6xl "><i class="fa fa-qrcode"></i></span>
                             <span class="font-bold text-2xl"></span>
@@ -249,8 +283,6 @@ if(isset($_POST['submit2'])){
 // get number of unread messages
 
 
-include "config.php";
-session_start();
 $user=$_SESSION['loggedin_user'];
 
 $getNoUmsgs=mysqli_query($conn, "SELECT * FROM chat WHERE mto='$user' AND st='0'");
@@ -415,5 +447,10 @@ else{
     
     <script src="https://unpkg.com/flowbite@1.4.7/dist/flowbite.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+        $(window).on('load', function(){
+            $('.spin-wrapper').fadeOut("slow");
+        });
+        </script>
 </body>
 </html>
