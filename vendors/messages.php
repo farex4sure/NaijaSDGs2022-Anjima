@@ -1,3 +1,73 @@
+<?php
+session_start();
+include "config.php";
+$list="";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+function get_time_ago( $time )
+{
+    $time_difference = time() - $time;
+
+    if( $time_difference < 1 ) { return 'Just now'; }
+    $condition = array( 12 * 30 * 24 * 60 * 60 =>  'year',
+                30 * 24 * 60 * 60       =>  'month',
+                24 * 60 * 60            =>  'day',
+                60 * 60                 =>  'hour',
+                60                      =>  'minute',
+                1                       =>  'second'
+    );
+
+    foreach( $condition as $secs => $str )
+    {
+        $d = $time_difference / $secs;
+
+        if( $d >= 1 )
+        {
+            $t = round( $d );
+            return $t . ' ' . $str . ( $t > 1 ? 's' : '' ) . ' ago';
+        }
+    }
+}
+$owner=$_SESSION['loggedin_vendor'];
+$getchat=mysqli_query($conn, "SELECT mfrom, mto, date, mcont, MAX(date) FROM chat WHERE mto='$owner' OR mfrom='$owner' GROUP BY mfrom,mto ORDER BY MAX(date)  DESC , date ");
+while ($mto = mysqli_fetch_assoc($getchat)) {
+$otherPhone = $mto['mfrom'];
+
+$getLatest = mysqli_query($conn, "SELECT * from chat WHERE mto='$otherPhone' AND mfrom='$owner' OR mfrom='$otherPhone' AND mto='$owner' ORDER BY id DESC LIMIT 1");
+$get = mysqli_fetch_assoc($getLatest);
+$lastMsg = $get['mcont'];
+$date = $get['date'];
+if ($otherPhone == $owner) {
+continue;
+}else{
+$getcs = mysqli_query($conn, "SELECT * FROM users WHERE phone='$otherPhone'");
+while ($cs = mysqli_fetch_assoc($getcs)) {
+$cid = $cs['phone'];
+
+// get users fullname using his id
+$getcname = mysqli_query($conn, "SELECT * FROM users WHERE phone='$cid'");
+while ($cd = mysqli_fetch_assoc($getcname)) {
+    $cname = $cd['fullname'];
+    $cid = $cd['phone'];
+    $pic = $cd['pic'];
+}
+$list.='<a href="interaction.php?interactwith=' . base64_encode($cid) . '" class="open-chat-btn flex items-center w-full px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
+    <img class="object-cover w-10 h-10 rounded-full" src="../user/images/'.$pic.'" alt="username" />
+    <div class="flex flex-col w-full gap-1">
+        <div class="flex justify-between">
+            <span class="block ml-2 font-semibold text-gray-600">'.$cname.'</span>
+            <span class="block ml-2 text-sm text-gray-600">'.get_time_ago( $date ).'</span>
+        </div>
+        <span class="inline-flex justify-start ml-2 w-full text-sm text-gray-600 truncate w-32 md;w-56">'.$lastMsg.'</span>
+    </div>
+</a>';
+        }
+    }
+}
+                                    
+                                
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,3 +1,96 @@
+<?php
+session_start();
+include "config.php";
+$list="";
+if(!isset($_SESSION['loggedin_vendor'])){
+    header("location:vendor_signin.php");
+}
+function get_time_ago( $time )
+{
+    $time_difference = time() - $time;
+
+    if( $time_difference < 1 ) { return 'Just now'; }
+    $condition = array( 12 * 30 * 24 * 60 * 60 =>  'year',
+                30 * 24 * 60 * 60       =>  'month',
+                24 * 60 * 60            =>  'day',
+                60 * 60                 =>  'hour',
+                60                      =>  'minute',
+                1                       =>  'second'
+    );
+
+    foreach( $condition as $secs => $str )
+    {
+        $d = $time_difference / $secs;
+
+        if( $d >= 1 )
+        {
+            $t = round( $d );
+            return $t . ' ' . $str . ( $t > 1 ? 's' : '' ) . ' ago';
+        }
+    }
+}
+$interactwith=base64_decode($_GET['interactwith']);
+$_SESSION['interactwith']=$interactwith;
+$owner=$_SESSION['loggedin_vendor'];
+$getchat=mysqli_query($conn, "SELECT mfrom, mto, date, mcont, MAX(date) FROM chat WHERE mto='$owner' OR mfrom='$owner' GROUP BY mfrom,mto ORDER BY MAX(date)  DESC , date ");
+
+
+while ($mto = mysqli_fetch_assoc($getchat)) {
+$otherPhone = $mto['mto'];
+$st=$mto['st'];
+
+
+
+
+// change message status to read
+
+
+// update message to read
+
+if(mysqli_query($conn, "UPDATE chat SET st='1' WHERE mto='$owner' AND mfrom='$otherPhone'")){
+
+
+
+}
+else{
+
+
+}
+
+
+$getLatest = mysqli_query($conn, "SELECT * from chat WHERE mto='$otherPhone' AND mfrom='$owner' OR mfrom='$otherPhone' AND mto='$owner' ORDER BY id DESC LIMIT 1");
+$get = mysqli_fetch_assoc($getLatest);
+$lastMsg = $get['mcont'];
+$date = $get['date'];
+if ($otherPhone == $owner) {
+continue;
+}else{
+$getcs = mysqli_query($conn, "SELECT * FROM users WHERE phone='$otherPhone'");
+while ($cs = mysqli_fetch_assoc($getcs)) {
+$cid = $cs['phone'];
+
+// get users fullname using his id
+$getcname = mysqli_query($conn, "SELECT * FROM users WHERE phone='$cid'");
+while ($cd = mysqli_fetch_assoc($getcname)) {
+    $cname = $cd['fullname'];
+    $cid = $cd['phone'];
+    $pic = $cd['pic'];
+}
+$list.='<a href="interaction.php?interactwith=' . base64_encode($cid) . '" class="flex items-center w-full px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
+    <img class="object-cover w-10 h-10 rounded-full" src="../user/images/'.$pic.'" alt="username" />
+    <div class="flex flex-col w-full gap-1">
+        <div class="flex justify-between">
+            <span class="block ml-2 font-semibold text-gray-600">'.$cname.'</span>
+            <span class="block ml-2 text-sm text-gray-600">'.get_time_ago( $date ).'</span>
+        </div>
+        <span class="inline-flex justify-start ml-2 w-full text-sm text-gray-600 truncate w-32 md;w-56">'.$lastMsg.'</span>
+    </div>
+</a>';
+        }
+    }
+}
+                          
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -139,91 +232,113 @@
         <!-- BLANK CHAT SECTION ENDS HERE -->
 
     </div>
+    
+  
+
+
+
+
+
     <script src="https://unpkg.com/flowbite@1.4.7/dist/flowbite.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script
-    src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-    crossorigin="anonymous"></script>
 
 
-    <script type="text/javascript">
 
 
-            function scrollDown() {
-            
+    
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
 
-            $('#main').scrollTop($('#main')[0].scrollHeight);
-            }
+
+<script type="text/javascript">
 
 
-        // This function is used to get error message for all ajax calls
-        function getErrorMessage(jqXHR, exception) {
-            var msg = '';
-            if (jqXHR.status === 0) {
-                msg = '<div class="alert alert-danger" role="alert">Internet connection lost!\n Please connect to internet and retry.</div>';
-            } else if (jqXHR.status == 404) {
-                msg = '<div class="alert alert-danger" role="alert">Requested page not found. [404]</div>';
-            } else if (jqXHR.status == 500) {
-                msg = '<div class="alert alert-danger" role="alert">Internal Server Error [500].</div>';
-            } else if (exception === 'parsererror') {
-                msg = '<div class="alert alert-danger" role="alert">Requested JSON parse failed.</div>';
-            } else if (exception === 'timeout') {
-                msg = '<div class="alert alert-danger" role="alert">Time out error.</div>';
-            } else if (exception === 'abort') {
-                msg = '<div class="alert alert-danger" role="alert">Ajax request aborted.</div>';
-            } else {
-                msg = '<div class="alert alert-danger" role="alert">Uncaught Error.</div>\n' + jqXHR.responseText;
-            }
+        function scrollDown() {
+          
 
-            ///
-            $("#err").html(msg).fadeIn();
+          $('#main').scrollTop($('#main')[0].scrollHeight);
         }
 
-    var auto_refresh = setInterval(
-    function ()
-    {
-    $('#main').load('loadc.php');
-    $('#main').scrollTop($('#main')[0].scrollHeight);
 
-    scrollDown();
-    }, 3000);
+    // This function is used to get error message for all ajax calls
+    function getErrorMessage(jqXHR, exception) {
+        var msg = '';
+        if (jqXHR.status === 0) {
+            msg = '<div class="alert alert-danger" role="alert">Internet connection lost!\n Please connect to internet and retry.</div>';
+        } else if (jqXHR.status == 404) {
+            msg = '<div class="alert alert-danger" role="alert">Requested page not found. [404]</div>';
+        } else if (jqXHR.status == 500) {
+            msg = '<div class="alert alert-danger" role="alert">Internal Server Error [500].</div>';
+        } else if (exception === 'parsererror') {
+            msg = '<div class="alert alert-danger" role="alert">Requested JSON parse failed.</div>';
+        } else if (exception === 'timeout') {
+            msg = '<div class="alert alert-danger" role="alert">Time out error.</div>';
+        } else if (exception === 'abort') {
+            msg = '<div class="alert alert-danger" role="alert">Ajax request aborted.</div>';
+        } else {
+            msg = '<div class="alert alert-danger" role="alert">Uncaught Error.</div>\n' + jqXHR.responseText;
+        }
+
+        ///
+        $("#err").html(msg).fadeIn();
+    }
+
+var auto_refresh = setInterval(
+function ()
+{
+$('#main').load('loadc.php');
+ $('#main').scrollTop($('#main')[0].scrollHeight);
+
+scrollDown();
+}, 3000);
+
+
+
     $(document).ready(function(e) {
-            scrollDown();
-            $("#smsg").on('submit', (function(e) {
-                e.preventDefault();
+        scrollDown();
+        $("#smsg").on('submit', (function(e) {
+            e.preventDefault();
 
-                $.ajax({
-                    url: "sendmsg.php",
-                    type: "POST",
-                    data: new FormData(this),
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    beforeSend: function() {
-                        $("#err").html("Sending message").fadeIn();
-                    },
-                    success: function(data) {
+            $.ajax({
+                url: "sendmsg.php",
+                type: "POST",
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                beforeSend: function() {
+                    $("#err").html("Sending message").fadeIn();
+                },
+                success: function(data) {
 
-                        $('#err').html(data).fadeIn(2000);
-                        $('#main').scrollTop($('#main')[0].scrollHeight);
-                        $("#err").fadeOut("slow");
-                        $("#smsg")[0].reset();
-                    
-                    
+                    $('#err').html(data).fadeIn(2000);
+                     $('#main').scrollTop($('#main')[0].scrollHeight);
+                     $("#err").fadeOut("slow");
+                    $("#smsg")[0].reset();
+                  
+                  
 
-                    },
-                    error: function(jqXHR, exception) {
-                        console.log(jqXHR);
-                        getErrorMessage(jqXHR, exception);
+                },
+                error: function(jqXHR, exception) {
+                    console.log(jqXHR);
+                    getErrorMessage(jqXHR, exception);
 
-                        $("#err").html(data).fadeIn();
-                    },
-                });
+                    $("#err").html(data).fadeIn();
+                },
+            });
 
-            }));
+        }));
 
-        });
-    </script>
+    });
+</script>
+
+
+
+
+
+
+
 </body>
 </html>

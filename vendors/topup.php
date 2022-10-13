@@ -5,95 +5,16 @@ $err="";
 if(!isset($_SESSION['loggedin_vendor'])){
     header("location:vendor_signin.php");
 }
-$details = "SELECT * FROM vendors WHERE phone='".$_SESSION['loggedin_vendor']."'";
-            $result = $conn->query($details);
-            if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
-                    $id = $row['id'];
-                    $name = $row["fullname"];
-                    $pic = $row["pic"];
-                }
-            }
-$balance = "SELECT * FROM wallet WHERE owner='".$_SESSION['loggedin_vendor']."'";
-            $result = $conn->query($balance);
-            if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
-                    $id = $row['id'];
-                    $balance = $row["balance"];
-                }
-            }
-if(isset($_POST['submit'])){
-    $bal=$_POST['bal'];
-    $amount=$_POST['amount'];
-    $r_phone=$_POST['phone'];
 
-    $phone=$r_phone;
-    $phone=ltrim($phone, "+2340");
-    $phone="+234".$phone;
-    $r_phone=$phone;
-
-    if($r_phone == $_SESSION['loggedin_vendor']){
-        $err='
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                Error
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                <p>You cannot send money to yourself.</p>
-            </div>
-        </div>
-        ';
-    }else{
-
-    if($bal >= $amount){
-
-    $query="SELECT * FROM users WHERE phone='$r_phone'";
-    $result=mysqli_query($conn,$query) or die(mysqli_error($conn));
-    $count=mysqli_num_rows($result);
-
-    $query2="SELECT * FROM vendors WHERE phone='$r_phone'";
-    $result2=mysqli_query($conn,$query2) or die(mysqli_error($conn));
-    $count2=mysqli_num_rows($result2);
-    if($count > 0 || $count2 > 0){
-        $_SESSION['amount']=$amount;
-        $_SESSION['r_phone']=$r_phone;
-        echo $_SESSION['r_phone'];
-        header("location:c_anjima.php");
-    }else{
-        $err='
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                Error
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                <p>This is phone number is not registered to anjima.</p>
-            </div>
-        </div>
-        ';
-    }
-}else{
-    $err='
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                Error
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                <p>Insufficient Ballance.</p>
-            </div>
-        </div>
-        ';
-}
-}
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="js/jquery.min.js"></script>  
+    <script src="js/jquery.min.js"></script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anjima | Vendor Withdraw</title>
+    <title>Anjima | User Top up</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://unpkg.com/flowbite@1.4.7/dist/flowbite.min.css" />
 </head>
@@ -109,7 +30,7 @@ if(isset($_POST['submit'])){
                 <div class='flex items-center gap-2 mr-auto'>
                     <div class='flex items-center gap-4'>
                         <a href="dashboard.php"><i class="fa fa-arrow-left"></i></a>
-                        <h3 class='w-full text-sm md:text-lg font-semibold text-gray-600'>Transfer Money</h3>
+                        <h3 class='w-full text-sm md:text-lg font-semibold text-gray-600'>Top up Wallet</h3>
                     </div>
                 </div>
             </div>
@@ -126,18 +47,13 @@ if(isset($_POST['submit'])){
                 </div>
                 <div class='flex flex-col mt-5'>
                 <?php echo $err ?>
-                    <form action="anjima.php" method="post">
+                    <form onsubmit(); return false();>
                         <div class="mb-6">
                             <label for="amount" class="w-full mb-2 text-sm md:text-lg font-semibold text-gray-600">Amount (&#8358)</label>
-                            <input type="text" name="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg                                                    focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"placeholder="Amount" required>
+                            <input type="text" id="amount" name="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg                                                    focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"placeholder="Amount" required>
                         </div>
-                        <div class="mb-6">
-                            <label for="phone" class="w-full mb-2 text-sm md:text-lg font-semibold text-gray-600">Phone Number</label>
-                            <input type="text" name="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg                                                    focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"placeholder="Phone Number" required>
-                        </div>
-                        <input hidden type="text" name="bal" value="<?php echo $balance ?>">
-                        <button type="submit" name="submit" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none                                         focus:ring-teal-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">
-                        Next
+                        <button type="button" onclick="payWithPaystack()" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none                                         focus:ring-teal-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">
+                        Top up
                         </button>
                     </form>
                 </div>
@@ -146,11 +62,56 @@ if(isset($_POST['submit'])){
         <!-- MAIN ENDS HERE -->
         
         <!-- FOOTER STARTS HERE -->
+        <footer class='flex w-full justify-center p-3 px-0 border-t border-1 bg-gray-300 bg-opacity-25'>
+            <div class='flex justify-around w-full max-w-5xl'>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-home'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-bank'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-message'></i></a>
+                </span>
+                <span class='text-teal-600 text-lg md:text-3xl'>
+                    <a href="#"><i class='fa fa-bars'></i></a>
+                </span>
+            </div>
+        </footer>
         <!-- FOOOTER ENDS HERE -->
     </div>
     <script src="https://unpkg.com/flowbite@1.4.7/dist/flowbite.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+  function payWithPaystack(){
+
+ document.cookie = "amount = " + document.getElementById("amount").value;
+  var handler = PaystackPop.setup({
+      key: 'pk_test_0ff1432465dd74912a4611ab331627725ed87907',
+      email: 'Anjima@gmail.com',
+      amount: document.getElementById("amount").value+"00",
+      ref: '<?php echo mt_rand(00000000,12345678);?>', // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
+      metadata: {
+         custom_fields: [
+            {
+                display_country: "",
+                display_city: "",
+                display_id: ""
+                 }
+         ]
+      },
+      callback: function(response){
+           window.location.replace("top-up-verify.php?ref="+response.reference);
+      },
+      onClose: function(){
+          alert('Top up canceled');
+      }
+    });
+    handler.openIframe();
+  }
+</script>
     <script>
         $(window).on('load', function(){
             $('.spin-wrapper').fadeOut("slow");
